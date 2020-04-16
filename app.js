@@ -91,3 +91,19 @@ app.post('/todo/:id/notes', (req, res) => {
         res.send({error : 'Invalid Id'});
     });
 });
+
+app.patch('/todo/:id', (req, res) => {
+    let Taskid = req.params.id;
+    let data = req.body;
+    Todos.findOne({
+            where : {
+                id : Taskid
+            }
+        }
+    ).then((todo) => {
+            todo.due = data.due;
+            todo.priority = data.priority;
+            todo.status = data.status;
+            todo.save().then(() => res.send(""));
+    })
+})
