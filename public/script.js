@@ -1,274 +1,173 @@
-async function getData(){
-    let res = await fetch("/todo");
-    let data = await res.json();
-    addToTable(data);
-}
+let i = 0;
+let submit = document.getElementById("submit");
+let taskAdd = $("#taskAdd");
 
-const table = document.querySelector("#table");
-const title = document.querySelector("#title");
-const description = document.querySelector("#description");
-const due = document.querySelector('#due');
-// const status = document.querySelector('#status');
-const priority = document.querySelector('#priority');
-const note = document.querySelector('#note');
-const submit = document.querySelector("#btn");
-const sortBy = document.querySelector("#sort");
-const modal = document.getElementById("myModal");
+// <--------- Load Task From Database ---------->
+window.onload = function () {
+  getTodos();   // get data from db
+  document.getElementById("inpDate").value = tomorrowDate(); // Set the tommorow date
+};
 
-const today = new Date();
-console.log(today);
-const tomorrow = new Date(today);
-tomorrow.setDate(tomorrow.getDate() + 1);
-due.defaultValue = tomorrow.toJSON().substring(0,10);
-console.log(tomorrow.toJSON().substring(0,10), tomorrow);
+// <--------- Load Task data to Database from form---------->
 
-function addToTable(data){
-    table.innerHTML = "";
-    let row = newElement('tr', null);
-    table.appendChild(row);
-    row.appendChild(newElement('th', 'Index'));
-    row.appendChild(newElement('th', 'Title'));
-    row.appendChild(newElement('th', 'Description'));
-    row.appendChild(newElement('th', 'Due Date'));
-    row.appendChild(newElement('th', 'Status'));
-    row.appendChild(newElement('th', 'Priority'));
+submit.onclick = function () {
+  let task = document.getElementById("inpNewTask").value;
+  let descrip = document.getElementById("inpDescrip").value;
+  let inpDate = document.getElementById("inpDate").value;
+  let inpStatus = document.getElementById("inpStatus").value;
+  let inpPrior = document.getElementById("inpPrior").value;
 
-    if(data.length == 0){
-        let row = newElement('tr', null);
-        table.appendChild(row);
-        let data = newElement('td', 'No data to display');
-        row.appendChild(data);
-        data.colSpan = "6";
-        data.style.textAlign = "center";
-        data.style.color = "gray";
-    }
-    else{
-        data = sortData(data, sortBy.value);
-        let indexVal = 1;
-        for(item of data){
-            let row = newElement('tr', null);
-            table.appendChild(row);
-            row.appendChild(newElement('td', indexVal));
-            row.appendChild(newElement('td', item.title));
-            row.appendChild(newElement('td', item.description));
-            row.appendChild(newElement('td', item.due));
-            var statusVal = "Incomplete";
-            if(item.status == true){
-                statusVal = "Complete";
-            }
-            row.appendChild(newElement('td', statusVal));
-            row.appendChild(newElement('td', item.priority));
-            let rowNote = newElement('tr', null);
-
-            table.appendChild(rowNote);
-            rowNote.className = 'notes';
-            rowData = document.createElement('td');
-            rowNote.appendChild(rowData);
-            getNotes(item.id, rowData);
-            rowData.colSpan = 6;
-            indexVal++;
-            
-        }
-    }
-    
-}
-
-function newElement(type, data){
-    let element = document.createElement(type);
-    if(data != null){
-        element.textContent = data;
-    }
-    return element;
-}
-
-async function addTask(){
-    let data = {
-        title : title.value,
-        description : description.value,
-        status : false,
-        priority : priority.options[priority.selectedIndex].value,
-        due : due.value,
-        note : note.value
-    };
-
-
-    if(data.title != "" && data.due != "" && data.priority != ""){
-        let res = await fetch("/todo",
-        {
-            method : 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-            });
-        let respData = res.body;
-        title.value = "";
-        description.value = "";
-        due.value = tomorrow.toJSON().substring(0,10);
-        priority.value = 'medium';
-        note.value = "";
-        getData();
-        }
-    
-    
-}
-
-async function getNotes(id, rowData){
-    var xhr = new XMLHttpRequest;
-    xhr.onreadystatechange = function(){
-        if (xhr.readyState === 4 && xhr.status == 200) {
-            let data = JSON.parse(this.responseText);
-            let list = newElement('ul', null);
-            
-            for(let note of data){
-                list.appendChild(newElement('li', note.note));
-            }
-            rowData.appendChild(list);
-            let input = newElement('input', null);
-            let btn = newElement('input', null);
-            let edit = newElement('button', 'Edit');
-            rowData.appendChild(input);
-            rowData.appendChild(btn);
-            rowData.appendChild(edit);
-            input.type = 'text';
-            btn.type = 'button';
-            btn.value = 'Add Note';
-            btn.onclick = function(){
-                addNote(input, id);
-            }
-            input.id = id + "_input";
-            edit.className = 'editButton';
-            edit.onclick = function(){
-                getEditPortal(id);
-            }
-          }
-    }
-    xhr.open("GET", "/todo/" + id + "/notes");
-    xhr.send();
-}
-
-async function addNote(input, id){
-    if(input.value != ""){
-        data = {
-            note : input.value,
-            TodoId : id
-        };
-        let res = await fetch("/todo/" + id + "/notes",
-            {
-                method : 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-                });
-        let respData = res.body;
-        getData();
-    }
-}
-
-function sortData(data, sortValue){
-    switch(sortValue){
-        case "due" : return sortByDueDate(data);
-
-        case "priority" : return sortByPriority(data);
-
-        case "status" : return sortByStatus(data);
-
-        default : return data;
-    }
-}
-
-function sortByDueDate(data){
-    console.log(data);
-    data.sort(function(o1,o2){
-        if (o1.due < o2.due)    return -1;
-        else if(o1.due > o2.due) return  1;
-        else                      return  0;
-      });
-      return data;
-}
-
-function sortByPriority(data){
-    console.log(data);
-    let dummyData = data;
-    for(let item of dummyData){
-        if(item.priority == "medium"){
-            item.priority = 2;
-        }
-        else if(item.priority == "high"){
-            item.priority = 1;
-        }
-        else{
-            item.priority = 3;
-        }
-    }
-    dummyData.sort(function(o1,o2){
-        if (o1.priority < o2.priority)      return -1;
-        else if(o1.priority > o2.priority)  return  1;
-        else                                return  0;
-      });
-      for(let item of dummyData){
-        if(item.priority == 2){
-            item.priority = "medium";
-        }
-        else if(item.priority == 1){
-            item.priority = "high";
-        }
-        else{
-            item.priority = "low";
-        }
-    }
-    return dummyData;
-}
-
-function sortByStatus(data){
-    console.log(data);
-    data.sort(function(o1,o2){
-        if (o1.status == true && o2.status == false)    return -1;
-        else                                            return  1;
-      });
-      return data;
-}
-
-function getEditPortal(id){
-    modal.style.display = "block";
-    fetch("/todo/" + id).then((data) => data.json().then((data) => {
-        document.querySelector("#editTitle").value = data.title;
-        document.querySelector("#editDescription").value = data.description;
-        document.querySelector("#editDue").value = data.due;
-        document.querySelector("#editPriority").value = data.priority;
-        document.querySelector("#editStatuss").checked = data.status;
-        document.querySelector("#saveBtn").onclick = function(){
-            saveChanges(id);
-        }
-    }));
-}
-
-async function saveChanges(id){
-    let data = {
-        due : document.querySelector("#editDue").value,
-        priority : document.querySelector("#editPriority").value,
-        status : document.querySelector("#editStatuss").checked
-    }
-    console.log(data);
-    let res = await fetch("/todo/" + id,
-        {
-            method : 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-    modal.style.display = "none";
-    getData();
-}
-
-
-submit.onclick = addTask;
-
-sortBy.onchange = getData;
-
-document.getElementsByClassName("close")[0].onclick = function() {
-    modal.style.display = "none";
-    document.querySelector("#saveBtn").onclick = null;
+  if (task == "") {
+    alert("Please input Task");
+    return false;
   }
+  if (inpDate == "") {
+    alert("Please input date");
+    return false;
+  }
+
+  let array = [task, descrip, inpDate, inpStatus, inpPrior];
+  tableRow(array);
+  addNewTodoJson(task, descrip, inpDate, inpStatus, inpPrior);
+};
+
+// <--------- Display the data to the Table ---------->
+function tableRow(array) {
+  let tableRef = document.getElementById("taskAdd");
+  let newRow = tableRef.insertRow(-1);
+  
+  for (let index = 0; index < array.length; index++) {
+    let newCell = newRow.insertCell(index);
+    let newText = document.createTextNode(array[index]);
+      if(index == 0){
+        newCell.setAttribute("onclick", "toggle("+ ++i + ")" );
+        newCell.setAttribute("text-decoration","underline");
+      }
+    newCell.appendChild(newText);
+  }
+
+  let newCell = newRow.insertCell(array.length);
+  newCell.id = i;
+  newCell.setAttribute('Style', 'display:none');
+  expand(i);
+}
+// <--------- Create the Add Note button and Display the Notes in every task ---------->
+async function expand(id) { 
+  console.log(id);
+  let noteOne = document.getElementById(id);
+  let inp = document.createElement('input')
+  inp.id = 'addNewNote'+id;
+  let btn = document.createElement('button')
+  btn.className = "btn btn-success";
+  btn.innerText = "Add New Note";
+  btn.id = 'addNote-'+id;
+  btn.setAttribute('onclick','addNew('+id+')');
+  noteOne.appendChild(inp);
+  noteOne.appendChild(btn);
+  
+
+  //Display the Notes in every task
+  let url = '/todos/'+id+'/notes';
+  const resp = await fetch(url, { method: "GET" });
+  const notes = await resp.json();
+  console.log(notes);
+  for (note in notes) {
+      // console.log(note);
+      let listNote = document.createElement('li')
+      listNote.innerText =  notes[note].descrip;
+      noteOne.appendChild(listNote)  
+  }
+}
+
+//<---------- Get the Todo task ----------->
+async function getTodos() {
+  const resp = await fetch("/todos", { method: "GET" });
+  const todos = await resp.json();
+  for (todo in todos) {
+    tableRow([
+      todos[todo].task,
+      todos[todo].descrip,
+      todos[todo].due,
+      todos[todo].status,
+      todos[todo].priority
+    ]);
+  }
+}
+
+//<---------- Display Notes to the particular task ----------->
+function addNew(id){
+  let noteValue = document.getElementById("addNewNote"+id)
+  console.log(noteValue.value);
+  if(noteValue.value == ""){
+    alert('Add Note');
+    return false
+  }
+  else{
+    addNewNoteJson(noteValue.value,id);
+    let noteOne = document.getElementById(id);
+    let listNote = document.createElement('li')
+    listNote.innerText = noteValue.value;
+    noteOne.appendChild(listNote)  
+  }
+}
+
+//<---------- Add the New Notes to the task (POST)----------->
+async function addNewNoteJson(descrip,id){
+  let url = "/todos/"+id+"/notes";
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+     descrip
+    }),
+  });
+}
+
+//<---------- Add the New Task to the Database (POST)  ----------->
+async function addNewTodoJson(task, descrip, due, status, priority) {
+  const resp = await fetch("/todos", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      task,
+      descrip,
+      due,
+      status,
+      priority,
+    }),
+  });
+}
+
+//<---------- Show and Hide the Notes of task--------->
+function toggle(id) {
+  var e = document.getElementById(id);
+  if(e.style.display == 'block')
+     e.style.display = 'none';
+  else
+     e.style.display = 'block';
+}
+
+//Set the format of date
+function formatDate(date) {
+  var d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return [year, month, day].join("-");
+}
+
+// returns tomorrow date
+function tomorrowDate() {
+  const today = new Date();
+  const tommorow = new Date(today);
+  tommorow.setDate(tommorow.getDate() + 1);
+  return formatDate(tommorow);
+}

@@ -1,62 +1,52 @@
-const sequelize = require('sequelize');
+const Sequelize = require('sequelize');
 
-const db = new sequelize({
-    dialect : 'sqlite',
-    storage : __dirname + '/todos.db'
-});
-
-console.log(__dirname);
-
-const notes = db.define('notes', {
-    id : {
-        type : sequelize.INTEGER,
-        autoIncrement : true,
-        primaryKey : true
-    },
-
-    note : {
-        type : sequelize.STRING(1000) 
-    }
+const db = new Sequelize({
+    dialect: 'sqlite',
+    storage: __dirname + '/todos.db'
 })
 
-const Todos = db.define('Todos', {
-    id : {
-        type : sequelize.INTEGER,
+
+const Todos = db.define('todo',{
+    id:{
+        type: Sequelize.INTEGER,
+        primaryKey : true,
+        autoIncrement:true
+    },
+    task:{
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    descrip:{
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    due:{
+        type: Sequelize.DATEONLY
+    },
+    priority:{
+        type: Sequelize.STRING
+    },
+    status:{
+        type: Sequelize.STRING
+    }
+
+})
+
+const Notes = db.define('Note', {
+    id: {
+        type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true
     },
-
-    title : {
-        type : sequelize.STRING(50),
-        allowNull: false
-    },
-
-    description : {
-        type : sequelize.STRING(100) 
-    },
-
-    due : {
-        type : sequelize.DATEONLY,
-        allowNull: false
-    },
-
-    status : {
-        type : sequelize.BOOLEAN,
-        defaultValue : true
-    },
-
-    priority : {
-        type : sequelize.ENUM,
-        values : ['high', 'medium', 'low'],
-        defaultValue : true,
+    descrip:{
+        type: Sequelize.STRING,
         allowNull: false
     }
+})
+ 
+Todos.hasMany(Notes);
 
-});
 
-Todos.hasMany(notes);
-notes.belongsTo(Todos);
 
-module.exports = {
-    db, Todos, notes
-};
+module.exports = { db, Notes ,  Todos }
+

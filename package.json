@@ -1,24 +1,19 @@
 {
-  "name": "task-manager",
+  "name": "nagarro",
   "version": "1.0.0",
-  "description": "task and notes manager app",
-  "main": "index.js",
-  "scripts": {
-    "test": "1+1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/asthaagrawal/task-manager-app.git"
-  },
-  "author": "astha agrawal",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/asthaagrawal/task-manager-app/issues"
-  },
-  "homepage": "https://github.com/asthaagrawal/task-manager-app#readme",
+  "description": "",
+  "main": "server.js",
   "dependencies": {
     "express": "^4.17.1",
+    "moment": "^2.24.0",
     "sequelize": "^5.21.6",
     "sqlite3": "^4.1.1"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "astha agrawal",
+  "license": "ISC"
 }
