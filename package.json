@@ -1,0 +1,24 @@
+{
+  "name": "task-manager",
+  "version": "1.0.0",
+  "description": "task and notes manager app",
+  "main": "index.js",
+  "scripts": {
+    "test": "1+1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asthaagrawal/task-manager-app.git"
+  },
+  "author": "astha agrawal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/asthaagrawal/task-manager-app/issues"
+  },
+  "homepage": "https://github.com/asthaagrawal/task-manager-app#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "sequelize": "^5.21.6",
+    "sqlite3": "^4.1.1"
+  }
+}
