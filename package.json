@@ -2,6 +2,9 @@
   "name": "nagarro",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "12.16.x"
+  },
   "main": "server.js",
   "dependencies": {
     "express": "^4.17.1",
