@@ -28,11 +28,12 @@
         <option value="low">Low</option>
     </select>
     <br/>
-    <label>Note : </label>
+    <label>Notes : </label>
     <input type = "text" id = "note" style="width : 70%">
     <input type="button" value = "Add Task" id = "btn">
     <p id = 'err'></p>
     <br/>
+    <label><span style = "color : red">* - Compulsory Fields</span></label>
     <label>Sort by:<span style = "color : red">*</span> </label>
     <select id="sort">
         <option value="due">Due date</option>
@@ -43,5 +44,33 @@
     <br/>
     
     <table id = "table"><table>
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <div class = 'editHeader'>
+                    <span class="close">&times;</span>
+                </div>
+                <div style = "padding : 20px;">
+                    <label>Title<span style = "color : red">*</span> : </label>
+                    <input type = "text" id = "editTitle" style = "color : gray" readonly>
+                    <label>Description : </label>
+                    <input type = "text" id = "editDescription" style = "color : gray" readonly>
+                    <br/>
+                    <label>Due :<span style = "color : red">*</span> </label>
+                    <input type = "Date" id = "editDue">
+                    <label>Priority:<span style = "color : red">*</span> </label>
+                    <select id="editPriority">
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <label class="container">Completed : 
+                        <input type="checkbox" id = "editStatuss">
+                        <span class="checkmark"></span>
+                    </label>
+                    <input type="button" value = "Save" id = "saveBtn">
+                </div>
+            </div>
+              
+        </div>
     </body>
     </html>

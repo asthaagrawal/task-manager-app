@@ -230,6 +230,45 @@ function sortByStatus(data){
       return data;
 }
 
+function getEditPortal(id){
+    modal.style.display = "block";
+    fetch("/todo/" + id).then((data) => data.json().then((data) => {
+        document.querySelector("#editTitle").value = data.title;
+        document.querySelector("#editDescription").value = data.description;
+        document.querySelector("#editDue").value = data.due;
+        document.querySelector("#editPriority").value = data.priority;
+        document.querySelector("#editStatuss").checked = data.status;
+        document.querySelector("#saveBtn").onclick = function(){
+            saveChanges(id);
+        }
+    }));
+}
+
+async function saveChanges(id){
+    let data = {
+        due : document.querySelector("#editDue").value,
+        priority : document.querySelector("#editPriority").value,
+        status : document.querySelector("#editStatuss").checked
+    }
+    console.log(data);
+    let res = await fetch("/todo/" + id,
+        {
+            method : 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+    modal.style.display = "none";
+    getData();
+}
+
+
 submit.onclick = addTask;
 
 sortBy.onchange = getData;
+
+document.getElementsByClassName("close")[0].onclick = function() {
+    modal.style.display = "none";
+    document.querySelector("#saveBtn").onclick = null;
+  }
